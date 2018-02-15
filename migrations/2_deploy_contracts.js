@@ -8,6 +8,6 @@ module.exports = function(deployer) {
 //  deployer.link(ConvertLib, MetaCoin);
 //  deployer.deploy(MetaCoin);
 
-    deployer.deploy(MyAdvancedToken);
+    deployer.deploy(MyAdvancedToken,100,'EuroCoins','EUC');
 
 };

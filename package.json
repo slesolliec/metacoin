@@ -1,0 +1,8 @@
+{
+  "name": "ERC20_Tokens",
+  "version": "0.0.1",
+  "dependencies": {},
+  "devDependencies": {
+    "token-test-suite": "https://github.com/CryptoverseRocks/token-test-suite.git"
+  }
+}
