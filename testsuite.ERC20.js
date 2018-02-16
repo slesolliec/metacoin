@@ -86,6 +86,45 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     checkTotalSupply();
 
 
+    //
+    // testing transfert method
+    //
+    const errorPattern = /StatusError: Transaction: 0x[0-9a-f]{64} exited with an error/;
+
+    // Alice gives 10 tokens to 0x0. (The trick here is to catch the failing Tx)
+    it("should not send tokens to the 0x0 address", function() {
+        return myToken.transfer(0,10).then(
+            function(result) {
+                // hey! This shouldn't have worked!!!
+                // console.log('Result is ' + result);
+                assert(false, "you should not be able to transfert founds to the 0x0 address!!");
+                return true;
+            },
+            function(err) {
+                // console.log('Error is' + err);
+                assert.match(err, errorPattern, "transfert to 0x0 address should have raised an error!!");
+            }
+        )
+    });
+
+    // Alice gives 10 more tokens to Bob than initial supply
+    it("should not send more tokens than you have", function() {
+        return myToken.transfer(bob, (tokenInfos.initialSupply + 10 ) * 10 ** tokenInfos.decimals) .then(
+            function(result) {
+                // hey! This shouldn't have worked!!!
+                // console.log('Result is ' + result);
+                assert(false, "you should not be able to transfert more tokens than you have!!");
+                return true;
+            },
+            function(err) {
+                // console.log('Error is' + err);
+                assert.match(err, errorPattern, "transfert of " + (tokenInfos.initialSupply + 10) + " to Bob should have raised an error!!");
+            }
+        )
+    });
+
+    // todo: check for overflow
+
 
 
 };

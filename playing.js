@@ -27,17 +27,6 @@ module.exports = function ( myCallback ) {
         return meta.balanceOf.call(account_one);
 
     })
-        .then(function(balance) {
-            console.log("Balance of account1 = " +balance.toNumber());
-        })
-
-        .then(function() {
-//            return meta.getBalance.call(account_two);
-            return meta.balanceOf.call(account_two);
-        })
-        .then(function(balance) {
-            console.log("Balance of account2 = " +balance.toNumber());
-        })
 
         .then(function() {
             return meta.sendCoin(account_two, 15, {from: account_one});
@@ -46,12 +35,6 @@ module.exports = function ( myCallback ) {
             console.log("Gas used by tx = " + result.receipt.gasUsed);
         })
 
-        .then(function() {
-            return meta.getBalance.call(account_two);
-        })
-        .then(function(balance) {
-            console.log("Balance of account2 = " +balance.toNumber());
-        })
 
         .catch( function(err) { console.log(err); })
 
