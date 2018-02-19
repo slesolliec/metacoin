@@ -1,6 +1,7 @@
 var testSuite = require('../testsuite.ERC20');
 
-const tokenContract = artifacts.require("../contracts/MyAdvancedToken.sol");
+// const tokenContract = artifacts.require("../contracts/MyAdvancedToken.sol");
+const MyERC20Token = artifacts.require("../contracts/TokenERC20.sol");
 
 const tokenInfos = {
     name:          "EuroCoins",
@@ -9,7 +10,8 @@ const tokenInfos = {
     initialSupply: 100
 };
 
-contract('tokenContract', function (accounts) { testSuite(tokenContract, tokenInfos, accounts) });
+// contract('tokenContract', function (accounts) { testSuite(tokenContract, tokenInfos, accounts) });
+contract('MyERC20Token', function (accounts) { testSuite(MyERC20Token, tokenInfos, accounts) });
 
 
 /*
