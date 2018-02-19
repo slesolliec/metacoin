@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
-    "token-test-suite": "https://github.com/CryptoverseRocks/token-test-suite.git"
+    "token-test-suite": "git+https://github.com/CryptoverseRocks/token-test-suite.git"
   }
 }
