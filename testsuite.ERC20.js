@@ -2,6 +2,8 @@
 
 module.exports = function(tokenContract, tokenInfos, accounts) {
 
+//    console.log(tokenContract);exit;
+
     // we get the contract instance
     var myToken;
     tokenContract.deployed().then(function (instance) {
@@ -91,10 +93,10 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     //
     // testing transfert method
     //
-    const errorPattern = /StatusError: Transaction: 0x[0-9a-f]{64} exited with an error/;
+    const errorPattern = /(StatusError: Transaction: 0x[0-9a-f]{64} exited with an error)+|(Error: VM Exception while processing transaction: revert)+/;
 
     // Alice gives 10 tokens to 0x0. (The trick here is to catch the failing Tx)
-    it("should not send tokens to the 0x0 address", function() {
+    it("should fail when sending tokens to the 0x0 address", function() {
         return myToken.transfer(0,10).then(
             function(result) {
                 // hey! This shouldn't have worked!!!
@@ -103,14 +105,14 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 return true;
             },
             function(err) {
-                // console.log('Error is' + err);
+                // console.log(err);
                 assert.match(err, errorPattern, "transfert to 0x0 address should have raised an error!!");
             }
         )
     });
 
     // Alice gives 10 more tokens to Bob than initial supply
-    it("should not send more tokens than you have", function() {
+    it("should fail when sending more tokens than you have", function() {
         return myToken.transfer(bob, (tokenInfos.initialSupply + 10 ) * 10 ** tokenInfos.decimals) .then(
             function(result) {
                 // hey! This shouldn't have worked!!!
@@ -135,11 +137,10 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             },
             function(err) {
                 // should not have failed
-                assert(false, "Transfering 0 token to Bob should not fail");
+                assert(false, "Transferring 0 token to Bob should not fail");
             }
         )
     });
-
 
     // Alice sends 1 (wei) unit token to Bob
     it("Alice should be able to send 1 minimum unit of a token to Bob", function() {
@@ -149,7 +150,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             },
             function(err) {
                 // should not have failed
-                assert(false, "Transfering 1 minimum unit token to Bob should not fail");
+                assert(false, "Transferring 1 minimum unit token to Bob should not fail");
             }
         )
     });
