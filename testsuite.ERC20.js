@@ -14,6 +14,8 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     const bob     = accounts[1];
     const charlie = accounts[2];
 
+    const initialSupplyInWei = tokenInfos.initialSupply * 10 ** tokenInfos.decimals;
+
     // todo: check that contract deployment has cost less than 2M gas
 
 
@@ -44,7 +46,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     it("should have a "+ tokenInfos.initialSupply +" Token balance in first account", function () {
         return myToken.balanceOf.call(alice)
             .then(function (balance) {
-                assert.equal(balance.toNumber(), tokenInfos.initialSupply * 10 ** tokenInfos.decimals , tokenInfos.initialSupply +" Tokens were not in the first account");
+                assert.equal(balance.toNumber(), initialSupplyInWei , tokenInfos.initialSupply +" Tokens were not in the first account");
             });
     });
     it("Bob should have no Token", function () {
@@ -70,7 +72,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
     // we check total supply (we sum all tokens in all accounts)
     function checkTotalSupply() {
-        it("total supply should be correct", function () {
+        it("total supply should be the sum of all accounts balance", function () {
             var totalTokens = 0;
             accounts.forEach( function( oneAccount ) {
                 return myToken.balanceOf.call(oneAccount).then( function(balance) {
@@ -125,6 +127,50 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
     // todo: check for overflow
 
+    // Alice sends 0 tokens to Bob
+    it("Alice should be able to send 0 token to Bob", function() {
+        return myToken.transfer(bob, 0).then(
+            function(result) {
+                assert(true, "Cannot fail :-)");
+            },
+            function(err) {
+                // should not have failed
+                assert(false, "Transfering 0 token to Bob should not fail");
+            }
+        )
+    });
+
+
+    // Alice sends 1 (wei) unit token to Bob
+    it("Alice should be able to send 1 minimum unit of a token to Bob", function() {
+        return myToken.transfer(bob, 1).then(
+            function(result) {
+                assert(true, "Cannot fail :-)");
+            },
+            function(err) {
+                // should not have failed
+                assert(false, "Transfering 1 minimum unit token to Bob should not fail");
+            }
+        )
+    });
+
+    // Check Alice has All but 1 wei token in her balance
+    it("Alice should have all her tokens less one wei", function() {
+        return myToken.balanceOf.call(alice).then(
+            function(result) {
+                assert.equal(result.toNumber(), initialSupplyInWei - 1, "Alice does not have the right amount of tokens !!");
+            }
+        );
+    });
+
+    // Check Bob has 1 wei in token in his balance
+    it("Bob should have 1 wei token", function() {
+        return myToken.balanceOf.call(bob).then(
+            function(result) {
+                assert.equal(result.toNumber(), 1, "Bob does not have the right amount of tokens !!");
+            }
+        );
+    });
 
 
 };
