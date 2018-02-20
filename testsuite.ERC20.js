@@ -274,6 +274,19 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
         );
     });
 
+    // check that Alice cannot send negative tokens to Charlie
+    it("Alice should not be able to send -10 wei tokens to Charlie", function() {
+        return myToken.transfer(charlie, -10).then(
+            function(result) {
+                assert(false, "This should surely not have succeeded!!!");
+            },
+            function(err) {
+                // should not have failed
+                assert.match(err, errorPattern, "Alice should have been able to send -10 wei tokens to Charlie");
+            }
+        )
+    });
+
 
 // todo: counting gas spending
 
