@@ -308,9 +308,14 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     });
 
 
-// todo: counting gas spending
+    // todo: counting gas spending with tx.receipt.gasUsed
+    /*
+    it("Total gas cost: "+totalGasUsed+" (contract deployment not included)", function() {
+        assert(2000000 > totalGasUsed,"Gas used should be lesser than 2M gas.");
 
-    // todo: test events
+    });
+    */
+
 
 
 };
