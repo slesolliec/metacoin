@@ -187,12 +187,97 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     });
 
     // check that Alice has not token left
+    it("Alice should have no token left", function() {
+        return myToken.balanceOf.call(alice).then(
+            function(result) {
+                assert.equal(result.toNumber(), 0, "Alice shouldn't have any token left");
+            }
+        );
+    });
 
     // check that Bob has all the tokens
+    it("Bob should have all the tokens", function() {
+        return myToken.balanceOf.call(bob).then(
+            function(result) {
+                assert.equal(result.toNumber(), initialSupplyInWei, "Bob should have all the tokens");
+            }
+        );
+    });
 
     // check that Alice can still send zero tokens
+    it("Alice should still be able to send zero token to Bob", function() {
+        return myToken.transfer(bob, 0).then(
+            function(result) {
+                assert(true, "Transaction succeeded");
+            },
+            function(err) {
+                // should not have failed
+                assert(false, "Alice should have been able to send zero token to Bob");
+            }
+        )
+    });
 
-    
+    // check that Alice can still send zero tokens
+    it("Alice should still be able to send zero token to Charlie", function() {
+        return myToken.transfer(charlie, 0).then(
+            function(result) {
+                assert(true, "Transaction succeeded");
+            },
+            function(err) {
+                // should not have failed
+                assert(false, "Alice should have been able to send zero token to Charlie");
+            }
+        )
+    });
+
+    // check that Alice cannot send one wei token
+    it("Alice shouldn't be able to send 1 wei token to Charlie", function() {
+        return myToken.transfer(charlie, 1).then(
+            function(result) {
+                assert(false, "That transaction shouldn't have succeeded!!!");
+            },
+            function(err) {
+                // should have failed
+                assert.match(err, errorPattern, "Alice should not have been able to send one wei token to Charlie");
+            }
+        )
+    });
+
+    // check that Bob can send 1 token to Charlie
+    it("Bob should be able to send 1 token to Charlie", function() {
+        return myToken.transfer(charlie, 1 * 10 ** tokenInfos.decimals , {from: bob}).then(
+            function(result) {
+                assert(true, "Transaction succeeded");
+            },
+            function(err) {
+                // should not have failed
+                assert.match(err, errorPattern, "Bob should have been able to send one token to Charlie");
+            }
+        )
+    });
+
+    // Bob should have all - 1 token
+    it("Bob should have all the tokens minus 1", function() {
+        return myToken.balanceOf.call(bob).then(
+            function(result) {
+                assert.equal(result.toNumber(), initialSupplyInWei - 1 * 10 ** tokenInfos.decimals, "Bob should have all the tokens minus one");
+            }
+        );
+    });
+
+    // Charlie should have 1 token
+    it("Charlie should have 1 token", function() {
+        return myToken.balanceOf.call(charlie).then(
+            function(result) {
+                assert.equal(result.toNumber(), 1 * 10 ** tokenInfos.decimals, "Charlie should have one token");
+            }
+        );
+    });
+
+
+// todo: counting gas spending
+
+    // todo: test events
 
 
 };
