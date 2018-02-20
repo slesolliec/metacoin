@@ -132,8 +132,12 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // Alice sends 0 tokens to Bob
     it("Alice should be able to send 0 token to Bob", function() {
         return myToken.transfer(bob, 0).then(
-            function(result) {
-                assert(true, "Cannot fail :-)");
+            function(tx) {
+                assert.equal(tx.logs.length,1, "Event: only one event should have been dispatched");
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),alice,  "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),bob,      "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(),0,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -145,8 +149,12 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // Alice sends 1 (wei) unit token to Bob
     it("Alice should be able to send 1 minimum unit of a token to Bob", function() {
         return myToken.transfer(bob, 1).then(
-            function(result) {
-                assert(true, "Cannot fail :-)");
+            function(tx) {
+                assert.equal(tx.logs.length,1, "Event: only one event should have been dispatched");
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),alice,  "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),bob,      "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(),1,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -176,8 +184,11 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // Check Alice can give all her tokens to Bob (transfer that ends with zero amount)
     it("Alice should be able to send all her tokens to Bob", function() {
         return myToken.transfer(bob, initialSupplyInWei - 1).then(
-            function(result) {
-                assert(true, "Transaction succeeded");
+            function(tx) {
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),alice,  "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),bob,      "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(),initialSupplyInWei - 1,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -207,8 +218,11 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // check that Alice can still send zero tokens
     it("Alice should still be able to send zero token to Bob", function() {
         return myToken.transfer(bob, 0).then(
-            function(result) {
-                assert(true, "Transaction succeeded");
+            function(tx) {
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),alice,  "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),bob,      "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(),0,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -220,8 +234,11 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // check that Alice can still send zero tokens
     it("Alice should still be able to send zero token to Charlie", function() {
         return myToken.transfer(charlie, 0).then(
-            function(result) {
-                assert(true, "Transaction succeeded");
+            function(tx) {
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),alice,  "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),charlie,  "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(),0,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -246,8 +263,11 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
     // check that Bob can send 1 token to Charlie
     it("Bob should be able to send 1 token to Charlie", function() {
         return myToken.transfer(charlie, 1 * 10 ** tokenInfos.decimals , {from: bob}).then(
-            function(result) {
-                assert(true, "Transaction succeeded");
+            function(tx) {
+                assert.equal(tx.logs[0].event,'Transfer',           "Transfer event: incorrect name");
+                assert.equal(tx.logs[0].args.from.valueOf(),bob,    "Transfer event: incorrect sender");
+                assert.equal(tx.logs[0].args.to.valueOf(),charlie,  "Transfer event: incorrect receiver");
+                assert.equal(tx.logs[0].args.value.valueOf(), 1 * 10 ** tokenInfos.decimals,     "Transfer event: incorrect value");
             },
             function(err) {
                 // should not have failed
@@ -282,7 +302,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             },
             function(err) {
                 // should not have failed
-                assert.match(err, errorPattern, "Alice should have been able to send -10 wei tokens to Charlie");
+                assert.match(err, errorPattern, "Alice should NOT have been able to send -10 wei tokens to Charlie");
             }
         )
     });
