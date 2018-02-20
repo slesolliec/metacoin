@@ -173,6 +173,27 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
         );
     });
 
+    // Check Alice can give all her tokens to Bob (transfer that ends with zero amount)
+    it("Alice should be able to send all her tokens to Bob", function() {
+        return myToken.transfer(bob, initialSupplyInWei - 1).then(
+            function(result) {
+                assert(true, "Transaction succeeded");
+            },
+            function(err) {
+                // should not have failed
+                assert(false, "Alice should have been able to send all her tokens");
+            }
+        )
+    });
+
+    // check that Alice has not token left
+
+    // check that Bob has all the tokens
+
+    // check that Alice can still send zero tokens
+
+    
+
 
 };
 
