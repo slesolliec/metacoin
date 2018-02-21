@@ -370,12 +370,73 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             checkAllowanceOf('Alice','Charlie', 0);
 
             // we allow Alice to spend more tokens (20 wei) from Bob and check allowances
+            it("Bob allows Alice to spend more (20 wei) of his tokens", function() {
+                return myToken.approve(alice,20, {from: bob}).then(
+                    function(tx) {
+                        assert(true);
+                    },
+                    function(err) {
+                        console.log(err);
+                        assert(false, "This Tx should have succeeded.");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  ,20);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
 
             // we allow Alice to spend less tokens (15 wei) from Bob and check allowances
+            it("Bob allows Alice to spend less (15 wei) of his tokens", function() {
+                return myToken.approve(alice,15, {from: bob}).then(
+                    function(tx) {
+                        assert(true);
+                    },
+                    function(err) {
+                        console.log(err);
+                        assert(false, "This Tx should have succeeded.");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  ,15);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
 
             // we allow Alice to spend 0 tokens from Bob and check allowances
+            it("Bob allows Alice to spend 0 of his tokens", function() {
+                return myToken.approve(alice,0, {from: bob}).then(
+                    function(tx) {
+                        assert(true);
+                    },
+                    function(err) {
+                        console.log(err);
+                        assert(false, "This Tx should have succeeded.");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  , 0);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
 
-            // we allow Alice to spend negative tokens (-10 wei) from Bob and check allowances
+            // we allow Alice to spend negative tokens (-5 wei) from Bob and check allowances
+            it("Bob allows Alice to spend -5 of his tokens", function() {
+                return myToken.approve(alice,-5, {from: bob}).then(
+                    function(tx) {
+                        // console.log(tx);
+                        assert(false, "Approval of negative values should not pass!!!");
+                    },
+                    function(err) {
+                        // console.log(err);
+                        assert(true, "This Tx should succeed.");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  , 0);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
 
 
         });
