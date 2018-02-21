@@ -26,12 +26,21 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
     const initialSupplyInWei = tokenInfos.initialSupply * 10 ** tokenInfos.decimals;
 
-    // Charlie should have 1 token
     function checkBalanceOf(person,value)  {
         it(person + " should have " + value + " token", function() {
             return myToken.balanceOf.call(name2account[person]).then(
                 function(result) {
                     assert.equal(result.toNumber(), value , person + " should have "+ value +" token");
+                }
+            );
+        });
+    }
+
+    function checkAllowanceOf(person,spender,value)  {
+        it(spender + " should be allowed to spend " + value + " wei tokens from "+ person, function() {
+            return myToken.allowance.call(name2account[person],name2account[spender]).then(
+                function(result) {
+                    assert.equal(result.toNumber(), value , spender + " should have been allowed to spend "+ value +" wei tokens from "+ person);
                 }
             );
         });
@@ -64,7 +73,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 assert.equal(log.args.value.valueOf(),value,               "Transfer event: incorrect value");
             }
         });
-        assert.equal(eventCount,1, "Only ONE transfer event should have fired!!!");
+        assert.equal(eventCount,1, "ONE and only ONE transfer event should have fired!!!");
     }
 
     // todo: check that contract deployment has cost less than 2M gas
@@ -332,7 +341,27 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 )
             });
 
+            // no balance should have changed
             checkBalanceOf('Alice', 0);
+            checkBalanceOf('Bob',     initialSupplyInWei - 1 * 10 ** tokenInfos.decimals);
+
+            // we allow Alice to spend 10 wei tokens from Bob, and check allowances
+            it("Bob allows Alice to spend 10 wei of his tokens", function() {
+                return myToken.approve(alice,10, {from: bob}).then(
+                    function(tx) {
+                        assert(true);
+                    },
+                    function(err) {
+                        console.log(err);
+                        assert(false, "This Tx should have succeeded.");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob','Alice',10);
+            checkAllowanceOf('Alice','Bob',0);
+
+            // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
+            
 
         });
 
