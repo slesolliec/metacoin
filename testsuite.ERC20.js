@@ -285,9 +285,9 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
 
         //
-        // testing allow and transferFrom methods
+        // testing allow and impossible transferFrom methods
         //
-        describe("Testing allow() and transferFrom() methods", function() {
+        describe("Testing transferFrom() when allowance is null", function() {
 
             it("Alice allowance for Bob (to spend her tokens) should be zero", function() {
                 return myToken.allowance.call(alice, bob).then(
@@ -344,6 +344,13 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             // no balance should have changed
             checkBalanceOf('Alice', 0);
             checkBalanceOf('Bob',     initialSupplyInWei - 1 * 10 ** tokenInfos.decimals);
+        });
+
+
+        //
+        // testing allow
+        //
+        describe("Testing allow()", function() {
 
             // we allow Alice to spend 10 wei tokens from Bob, and check allowances
             it("Bob allows Alice to spend 10 wei of his tokens", function() {
@@ -357,13 +364,33 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                     }
                 )
             });
-            checkAllowanceOf('Bob','Alice',10);
-            checkAllowanceOf('Alice','Bob',0);
+            checkAllowanceOf('Bob',  'Alice'  ,10);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
 
-            // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
-            
+            // we allow Alice to spend more tokens (20 wei) from Bob and check allowances
+
+            // we allow Alice to spend less tokens (15 wei) from Bob and check allowances
+
+            // we allow Alice to spend 0 tokens from Bob and check allowances
+
+            // we allow Alice to spend negative tokens (-10 wei) from Bob and check allowances
+
 
         });
+
+
+        //
+        // testing transferFrom methods
+        //
+//        describe("Testing allow() and transferFrom() methods", function() {
+            // arrange: allow Alice to spend 10 tokens of Bob
+
+            // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
+
+//        });
+
 
 
     });
