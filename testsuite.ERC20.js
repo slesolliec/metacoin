@@ -440,8 +440,6 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             checkAllowanceOf('Bob',  'Charlie', 0);
             checkAllowanceOf('Alice','Bob'    , 0);
             checkAllowanceOf('Alice','Charlie', 0);
-
-
         });
 
 
@@ -479,6 +477,10 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             });
             // check allowance has not changed
             checkAllowanceOf('Bob','Alice',10);
+            // check balances have not changed
+            checkBalanceOf('Alice',   0);
+            checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals);
+            checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals);
 
             it("Alice should not be able to spend -2 wei Bob tokens", function() {
                 return myToken.transferFrom(bob, charlie, -2).then(
@@ -547,6 +549,51 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 10);
             checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 10);
 
+            it("Alice should be able to spend 0 Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 0).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',0);
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should have been able to send zero token from Bob to Charlie");
+                    }
+                )
+            });
+            // check allowance has not changed
+            checkAllowanceOf('Bob','Alice',0);
+            // check balances have not changed
+            checkBalanceOf('Alice',   0);
+            checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 10);
+            checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 10);
+
+
+            it("Alice should not be able to spend 2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',2);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should NOT have been able to send 2 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
+
+
+            it("Alice should not be able to spend -2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, -2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',-2);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should NOT have been able to send -2 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
 
         });
 
@@ -561,14 +608,6 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
     });
     */
-
-
-
-    // todo: testing transferFrom method
-
-
-    // known issue: tests will fail if more than standard events are used: should find a work around
-
 
 };
 
