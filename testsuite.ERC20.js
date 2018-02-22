@@ -281,6 +281,9 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                     }
                 )
             });
+
+            // todo: try a negative number that underflows under the current balance of Charlie
+
         });
 
 
@@ -445,12 +448,75 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
         //
         // testing transferFrom methods
         //
-//        describe("Testing allow() and transferFrom() methods", function() {
+        describe("Testing allow() and transferFrom() methods", function() {
             // arrange: allow Alice to spend 10 tokens of Bob
+            it("Bob allows Alice 10 of his tokens", function() {
+                return myToken.approve(alice,10, {from: bob}).then(
+                    function(tx) {
+                        // console.log(tx);
+                        assert(true, "This should work");
+                    },
+                    function(err) {
+                        // console.log(err);
+                        assert(false, "This Tx should have succeeded.");
+                    }
+                )
+            });
+            // check allowance is good
+            checkAllowanceOf('Bob','Alice',10);
+
+            // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
+            it("Alice should be able to spend 0 Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 0).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',0);
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should have been able to send zero token from Bob to Charlie");
+                    }
+                )
+            });
+            // check allowance has not changed
+            checkAllowanceOf('Bob','Alice',10);
+
+            it("Alice should not be able to spend -2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, -2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',0);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should have been able to send -2 token from Bob to Charlie");
+                    }
+                )
+            });
+            // check allowance has not changed
+            checkAllowanceOf('Bob','Alice',10);
+
+            it("Alice should be able to spend 2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',2);
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert(false, "Alice should have been able to send 2 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  , 8);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
+            checkBalanceOf('Alice',   0);
+            checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 2);
+            checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 2);
 
             // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
 
-//        });
+        });
 
 
 
