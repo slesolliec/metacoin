@@ -514,7 +514,39 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 2);
             checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 2);
 
-            // we let Alice spend: 0, -2, 2, 10, 8, 0, 2, -2
+            it("Alice should not be able to spend 10 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 10).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',10);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should NOT have been able to send 10 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
+
+            // we let Alice spend: 8, 0, 2, -2
+            it("Alice should be able to spend 8 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 8).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',8);
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert(false, "Alice should have been able to send 8 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  , 0);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
+            checkBalanceOf('Alice',   0);
+            checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 10);
+            checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 10);
+
 
         });
 
