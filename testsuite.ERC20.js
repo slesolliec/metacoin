@@ -282,7 +282,31 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 )
             });
 
-            // todo: try a negative number that underflows under the current balance of Charlie
+            // Performing underflow attack !!!
+            // We try to transfer a negative number of tokens from Alice to Charlie, so that the negative value underflows
+            // under the current balance of Charlie.
+            it("UNDERFLOW ATTACK: Alice should not be able to send negative tokens evaluating under Charlie's balance", function() {
+                // getting Charlie's balance
+                return myToken.balanceOf.call(charlie).then(
+                    function(result) {
+                        var balanceOfCharlie = result.toNumber();
+                        var attackNumber = new web3.BigNumber(2).pow(256).neg().add( 100 ).sub(10);
+//                        console.log(new web3.BigNumber(2).pow(256).neg().toString());
+//                        console.log(attackNumber.toString());
+                        return myToken.transfer(charlie, attackNumber).then(
+                            function(result) {
+                                assert(false, "This should surely not have succeeded!!!");
+                            },
+                            function(err) {
+                                // console.log(err);
+                                // should not have failed
+                                assert.match(err, errorPattern, "Alice should NOT have been able to send under attack Charlie");
+                            }
+                        )
+                    }
+                );
+
+            });
 
         });
 
