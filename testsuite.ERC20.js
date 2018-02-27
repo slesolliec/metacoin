@@ -73,8 +73,24 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 assert.equal(log.args.value.valueOf(),value,               "Transfer event: incorrect value");
             }
         });
-        assert.equal(eventCount,1, "ONE and only ONE transfer event should have fired!!!");
+        assert.equal(eventCount,1, "ONE and only ONE Transfer event should have fired!!!");
     }
+
+    // check that a Tx has emitted the correct Approval event
+    function checkApprovalEvent(tx, owner, spender, value) {
+        var eventCount = 0;
+        tx.logs.forEach( function(log) {
+            if (log.event === 'Approval') {
+                eventCount++;
+                assert.equal(log.args.owner.valueOf(),   name2account[owner],   "Approval event: incorrect owner. Should have been "   + owner);
+                assert.equal(log.args.spender.valueOf(), name2account[spender], "Approval event: incorrect spender. Should have been " + spender);
+                assert.equal(log.args.value.valueOf(),value,                    "Approval event: incorrect value");
+            }
+        });
+        assert.equal(eventCount,1, "ONE and only ONE Approval event should have fired!!!");
+    }
+
+
 
     // todo: check that contract deployment has cost less than 2M gas
 
@@ -359,7 +375,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             it("Bob allows Alice to spend 10 wei of his tokens", function() {
                 return myToken.approve(alice,10, {from: bob}).then(
                     function(tx) {
-                        assert(true);
+                        checkApprovalEvent(tx,'Bob','Alice',10);
                     },
                     function(err) {
                         console.log(err);
@@ -376,7 +392,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             it("Bob allows Alice to spend more (20 wei) of his tokens", function() {
                 return myToken.approve(alice,20, {from: bob}).then(
                     function(tx) {
-                        assert(true);
+                        checkApprovalEvent(tx,'Bob','Alice',20);
                     },
                     function(err) {
                         console.log(err);
@@ -393,7 +409,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             it("Bob allows Alice to spend less (15 wei) of his tokens", function() {
                 return myToken.approve(alice,15, {from: bob}).then(
                     function(tx) {
-                        assert(true);
+                        checkApprovalEvent(tx,'Bob','Alice',15);
                     },
                     function(err) {
                         console.log(err);
@@ -410,7 +426,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             it("Bob allows Alice to spend 0 of his tokens", function() {
                 return myToken.approve(alice,0, {from: bob}).then(
                     function(tx) {
-                        assert(true);
+                        checkApprovalEvent(tx,'Bob','Alice',0);
                     },
                     function(err) {
                         console.log(err);
@@ -454,7 +470,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 return myToken.approve(alice,10, {from: bob}).then(
                     function(tx) {
                         // console.log(tx);
-                        assert(true, "This should work");
+                        checkApprovalEvent(tx,'Bob','Alice',10);
                     },
                     function(err) {
                         // console.log(err);
