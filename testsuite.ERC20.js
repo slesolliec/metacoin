@@ -30,7 +30,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
         it(person + " should have " + value + " token", function() {
             return myToken.balanceOf.call(name2account[person]).then(
                 function(result) {
-                    assert.equal(result.toNumber(), value , person + " should have "+ value +" token");
+                    assert.equal(result.toNumber(), value , person + " should have "+ value +" tokens");
                 }
             );
         });
@@ -83,7 +83,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
         //
         // Test token information: name, decimals, symbol ...
         //
-        describe("Token informations", function () {
+        describe("Token informations (optional)", function () {
             it("should have the right name", function () {
                 return myToken.name.call()
                     .then(function (name) {
@@ -527,7 +527,7 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
                 )
             });
 
-            // we let Alice spend: 8, 0, 2, -2
+            // we let Alice spend: 8
             it("Alice should be able to spend 8 wei Bob tokens", function() {
                 return myToken.transferFrom(bob, charlie, 8).then(
                     function(tx) {
@@ -547,12 +547,59 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
             checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 10);
             checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 10);
 
+            // we let Alice spend: 0
+            it("Alice should be able to spend 0 Bob token", function() {
+                return myToken.transferFrom(bob, charlie, 0).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',0);
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert(false, "Alice should have been able to send 0 token from Bob to Charlie");
+                    }
+                )
+            });
+            checkAllowanceOf('Bob',  'Alice'  , 0);
+            checkAllowanceOf('Bob',  'Charlie', 0);
+            checkAllowanceOf('Alice','Bob'    , 0);
+            checkAllowanceOf('Alice','Charlie', 0);
+            checkBalanceOf('Alice',   0);
+            checkBalanceOf('Bob',     initialSupplyInWei -  1 * 10 ** tokenInfos.decimals - 10);
+            checkBalanceOf('Charlie', 1 * 10 ** tokenInfos.decimals + 10);
+
+            // we let Alice spend: 2
+            it("Alice should not be able to spend 2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, 2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',2);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should NOT have been able to send 2 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
+
+            // we let Alice spend: -2
+            it("Alice should not be able to spend -2 wei Bob tokens", function() {
+                return myToken.transferFrom(bob, charlie, -2).then(
+                    function(tx) {
+                        checkTransferEvent(tx,'Bob','Charlie',-2);
+                        assert(false, "This Tx should have failed");
+                    },
+                    function(err) {
+                        // should not have failed
+                        assert.match(err, errorPattern, "Alice should NOT have been able to send -2 wei tokens from Bob to Charlie");
+                    }
+                )
+            });
 
         });
 
 
-
     });
+
 
     // todo: counting gas spending with tx.receipt.gasUsed
     /*
@@ -561,13 +608,6 @@ module.exports = function(tokenContract, tokenInfos, accounts) {
 
     });
     */
-
-
-
-    // todo: testing transferFrom method
-
-
-    // known issue: tests will fail if more than standard events are used: should find a work around
 
 
 };
