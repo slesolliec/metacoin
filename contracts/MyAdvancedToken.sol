@@ -1,4 +1,4 @@
-pragma solidity ^0.4.16;
+pragma solidity ^0.5.16;
 
 
 import "./owned.sol";
@@ -20,10 +20,10 @@ contract MyAdvancedToken is owned, TokenERC20 {
     event FrozenFunds(address target, bool frozen);
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
-    function MyAdvancedToken(
+    constructor(
         uint256 initialSupply,
-        string tokenName,
-        string tokenSymbol
+        string memory tokenName,
+        string memory tokenSymbol
     ) TokenERC20(initialSupply, tokenName, tokenSymbol) public {}
 
     /* Internal transfer, only can be called by this contract */

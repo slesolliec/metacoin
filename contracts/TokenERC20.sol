@@ -1,6 +1,6 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.5.16;
 
-interface tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes _extraData) public; }
+interface tokenRecipient { function receiveApproval(address _from, uint256 _value, address _token, bytes calldata _extraData) external; }
 
 contract TokenERC20 {
     // Public variables of the token
@@ -25,10 +25,10 @@ contract TokenERC20 {
      *
      * Initializes contract with initial supply tokens to the creator of the contract
      */
-    function TokenERC20(
+    constructor(
         uint256 initialSupply,
-        string tokenName,
-        string tokenSymbol
+        string memory tokenName,
+        string memory tokenSymbol
     ) public {
         totalSupply = initialSupply * 10 ** uint256(decimals);  // Update total supply with the decimal amount
         balanceOf[msg.sender] = totalSupply;                // Give the creator all initial tokens
@@ -108,7 +108,7 @@ contract TokenERC20 {
      * @param _value the max amount they can spend
      * @param _extraData some extra information to send to the approved contract
      */
-    function approveAndCall(address _spender, uint256 _value, bytes _extraData)
+    function approveAndCall(address _spender, uint256 _value, bytes memory _extraData)
     public
     returns (bool success) {
         tokenRecipient spender = tokenRecipient(_spender);

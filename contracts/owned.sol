@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.5.16;
 
 
 // from https://ethereum.org/token
@@ -6,7 +6,7 @@ pragma solidity ^0.4.0;
 contract owned {
     address public owner;
 
-    function owned() public {
+    constructor() public {
         owner = msg.sender;
     }
 
